@@ -5,17 +5,17 @@ namespace Users.Domain.Entities
 {
     public class User : Entity<Guid>
     {
-        public string Name { get; set; } = null!;
+        public string Name { get; private set; } = null!;
 
-        public string Email { get; set; } = null!;
+        public string Email { get; private set; } = null!;
 
-        public string PasswordHash { get; set; } = null!;
+        public string PasswordHash { get; private set; } = null!;
 
-        public Role Role { get; set; }
+        public Role Role { get; private set; }
 
-        public bool IsActive { get; set; } = true;
+        public bool IsActive { get; private set; } = true;
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
 
         public User() { }
         public User(string name, string email, string passwordHash, Role role)

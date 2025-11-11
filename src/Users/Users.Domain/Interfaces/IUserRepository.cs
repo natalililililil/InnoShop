@@ -7,10 +7,10 @@ using Users.Domain.Entities;
 
 namespace Users.Domain.Interfaces
 {
-    public interface IUserRepository<TKey>
+    public interface IUserRepository
     {
         Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken = default);
-        Task<User?> GetByIdAsync(TKey id, CancellationToken cancellationToken = default);
+        Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
         Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
         void Create(User user);
         void Update(User user);
