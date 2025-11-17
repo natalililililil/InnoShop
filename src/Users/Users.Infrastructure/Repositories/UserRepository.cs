@@ -38,7 +38,7 @@ namespace Users.Infrastructure.Repositories
 
         public void Update(User user)
         {
-            throw new NotImplementedException();
+            _dbContext.Users.Update(user);
         }
 
         public async Task SaveAsync(CancellationToken cancellationToken = default)

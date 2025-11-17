@@ -28,6 +28,11 @@ namespace Users.Domain.Entities
 
         public void Deactivate() => IsActive = false;
         public void Activate() => IsActive = true;
+        public void UpdateName(string name) => Name = name;
+        public void UpdateEmail(string email) => Email = email;
+        public void UpdateRole(Role role) => Role = role;
+
+
         // public ICollection<Product> Products { get; set; }
     }
 }

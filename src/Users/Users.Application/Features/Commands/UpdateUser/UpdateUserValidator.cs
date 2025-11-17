@@ -7,8 +7,8 @@ namespace Users.Application.Features.Commands.UpdateUser
         public UpdateUserValidator()
         {
             RuleFor(x => x.Id).NotEmpty();
-            RuleFor(x => x.Name).NotEmpty().MaximumLength(50);
-            RuleFor(x => x.Email).NotEmpty().EmailAddress();
+            RuleFor(x => x.User.Name).NotEmpty().MaximumLength(50);
+            RuleFor(x => x.User.Email).NotEmpty().EmailAddress();
         }
     }
 }
