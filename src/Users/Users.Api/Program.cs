@@ -7,6 +7,7 @@ using Users.Infrastructure.Persistence;
 using Users.Infrastructure.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Users.Domain.Interfaces;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,8 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddDbContext<UserDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
+
+builder.Services.AddSingleton<IPasswordHasher<object>, PasswordHasher<object>>();
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(Program).Assembly)
