@@ -1,13 +1,13 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Users.Application.DTOs;
+using Users.Application.Features.Commands.ActivateUser;
 using Users.Application.Features.Commands.CreateUser;
+using Users.Application.Features.Commands.DeactivateUser;
+using Users.Application.Features.Commands.DeleteUser;
 using Users.Application.Features.Commands.UpdateUser;
 using Users.Application.Features.Queries.GetAllUsers;
 using Users.Application.Features.Queries.GetUserById;
-//using Users.Application.Interfaces;
-using Users.Domain.Entities;
 
 namespace Users.Api.Controllers
 {
@@ -16,11 +16,9 @@ namespace Users.Api.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IMediator _mediator;
-        //private readonly IUserService _userService;
 
         public UsersController(IMediator mediator)
         {
-            //_userService = userService;
             _mediator = mediator;
         }
 
@@ -57,31 +55,38 @@ namespace Users.Api.Controllers
             return NoContent();
         }
 
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var result = await _mediator.Send(new DeleteUserCommand(id));
 
-        //[HttpDelete("{id:guid}")]
-        //public async Task<IActionResult> Deactivate(Guid id)
-        //{
-        //    var command = new DeactivateUserCommand(id);
+            if (!result)
+                return NotFound();
 
-        //    var success = await _mediator.Send(command);
+            return NoContent();
+        }
 
-        //    if (!success)
-        //        return NotFound();
 
-        //    return NoContent();
-        //}
+        [HttpPatch("{id:guid}/deactivate")]
+        public async Task<IActionResult> Deactivate(Guid id)
+        {
+            var success = await _mediator.Send(new DeactivateUserCommand(id));
 
-        //[HttpPatch("{id:guid}/activate")]
-        //public async Task<IActionResult> Activate(Guid id)
-        //{
-        //    var command = new ActivateUserCommand(id);
+            if (!success)
+                return NotFound();
 
-        //    var success = await _mediator.Send(command);
+            return NoContent();
+        }
 
-        //    if (!success)
-        //        return NotFound();
+        [HttpPatch("{id:guid}/activate")]
+        public async Task<IActionResult> Activate(Guid id)
+        {
+            var success = await _mediator.Send(new ActivateUserCommand(id));
 
-        //    return NoContent();
-        //}
+            if (!success)
+                return NotFound();
+
+            return NoContent();
+        }
     }
 }
