@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Users.Application.DTOs;
 using Users.Application.Features.Commands.ActivateUser;
@@ -13,6 +14,7 @@ namespace Users.Api.Controllers
 {
     [Route("api/users")]
     [ApiController]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -36,6 +38,7 @@ namespace Users.Api.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateUserDto userDto)
         {
@@ -44,6 +47,7 @@ namespace Users.Api.Controllers
             return CreatedAtAction(nameof(GetById), new { id = id}, id);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserDto dto)
         {
@@ -55,6 +59,7 @@ namespace Users.Api.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -66,7 +71,7 @@ namespace Users.Api.Controllers
             return NoContent();
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpPatch("{id:guid}/deactivate")]
         public async Task<IActionResult> Deactivate(Guid id)
         {
@@ -78,6 +83,7 @@ namespace Users.Api.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPatch("{id:guid}/activate")]
         public async Task<IActionResult> Activate(Guid id)
         {

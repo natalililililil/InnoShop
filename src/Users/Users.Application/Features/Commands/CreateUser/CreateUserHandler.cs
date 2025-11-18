@@ -6,7 +6,7 @@ using Users.Domain.Interfaces;
 
 namespace Users.Application.Features.Commands.CreateUser
 {
-    public class CreateUserHandler : IRequestHandler<CreateUserCommand, Guid>
+    public class CreateUserHandler : IRequestHandler<CreateUserCommand, User>
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher<object> _passwordHasher;
@@ -17,7 +17,7 @@ namespace Users.Application.Features.Commands.CreateUser
             _passwordHasher = passwordHasher;
         }
 
-        public async Task<Guid> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+        public async Task<User> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
             var dto = request.User;
             var role = Enum.TryParse<Role>(dto.Role, true, out var parsedRole) ? parsedRole : Role.User;
@@ -28,7 +28,7 @@ namespace Users.Application.Features.Commands.CreateUser
             _userRepository.Create(user);
             await _userRepository.SaveAsync(cancellationToken);
 
-            return user.Id;
+            return user;
         }
     }
 }
