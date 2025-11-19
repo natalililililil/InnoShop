@@ -43,8 +43,9 @@ namespace Users.Api.Controllers
         public async Task<IActionResult> Create([FromBody] CreateUserDto userDto)
         {
             var command = new CreateUserCommand(userDto);
-            var id = await _mediator.Send(command);
-            return CreatedAtAction(nameof(GetById), new { id = id}, id);
+            var createdUser = await _mediator.Send(command);
+            var id = createdUser.Id;
+            return CreatedAtAction(nameof(GetById), new { id = id}, createdUser);
         }
 
         [Authorize(Roles = "Admin")]
