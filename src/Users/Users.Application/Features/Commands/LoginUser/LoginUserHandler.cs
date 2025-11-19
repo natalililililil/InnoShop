@@ -43,6 +43,11 @@ namespace Users.Application.Features.Commands.LoginUser
                 throw new Exception("Неверный логин или пароль.");
             }
 
+            if (!user.EmailConfirmed)
+            {
+                throw new Exception("Аккаунт не подтвержден. Пожалуйста, проверьте свою почту для подтверждения");
+            }
+
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var expiryMinutes = int.Parse(jwtSettings["ExpiryMinutes"]!);
             var expiryDate = DateTime.UtcNow.AddMinutes(expiryMinutes);

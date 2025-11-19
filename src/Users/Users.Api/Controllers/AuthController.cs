@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Users.Application.DTOs;
+using Users.Application.Features.Commands.ConfirmEmail;
 using Users.Application.Features.Commands.CreateUser;
 using Users.Application.Features.Commands.LoginUser;
 using Users.Application.Services;
@@ -52,6 +53,33 @@ namespace Users.Api.Controllers
             catch (Exception ex)
             {
                 return Unauthorized(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("confirm-email")]
+        public async Task<IActionResult> ConfirmEmail([FromQuery] string email, [FromQuery] string token)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(token))
+                {
+                    return BadRequest("Некорректная ссылка подтверждения");
+                }
+
+                var command = new ConfirmEmailCommand(email, token);
+                var success = await _mediator.Send(command);
+
+                if (success)
+                {
+                    return Ok("Ваш аккаунт успешно подтвержден! Теперь вы можете войти");
+                }
+
+                return BadRequest("Не удалось подтвердить аккаунт");
+            }
+            catch (Exception ex)
+            {
+                // В случае ошибки с токеном или сроком действия
+                return BadRequest($"Ошибка подтверждения: {ex.Message}");
             }
         }
     }

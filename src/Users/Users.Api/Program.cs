@@ -63,6 +63,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddAuthorization();
 
 builder.Services.AddMediatR(cfg =>

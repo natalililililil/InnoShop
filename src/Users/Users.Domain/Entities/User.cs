@@ -14,7 +14,11 @@ namespace Users.Domain.Entities
         public Role Role { get; private set; }
 
         public bool IsActive { get; private set; } = true;
-
+        public bool EmailConfirmed { get; private set; } = false;
+        public string? EmailConfirmationToken { get; private set; }
+        public DateTime? EmailConfirmationTokenExpiry { get; private set; }
+        public string? PasswordResetToken { get; private set; } 
+        public DateTime? PasswordResetTokenExpiry { get; private set; }
         public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
 
         public User() { }
@@ -31,7 +35,28 @@ namespace Users.Domain.Entities
         public void UpdateName(string name) => Name = name;
         public void UpdateEmail(string email) => Email = email;
         public void UpdateRole(Role role) => Role = role;
-
+        public void SetEmailConfirmationToken(string token, DateTime expiry)
+        {
+            EmailConfirmationToken = token;
+            EmailConfirmationTokenExpiry = expiry;
+        }
+        public void ClearEmailConfirmationToken()
+        {
+            EmailConfirmationToken = null;
+            EmailConfirmationTokenExpiry = null;
+        }
+        public void ConfirmEmail() => EmailConfirmed = true;
+        public void SetPasswordResetToken(string token, DateTime expiry) 
+        {
+            PasswordResetToken = token;
+            PasswordResetTokenExpiry = expiry;
+        }
+        public void ClearPasswordResetToken()
+        {
+            PasswordResetToken = null;
+            PasswordResetTokenExpiry = null;
+        }
+        public void UpdatePasswordHash(string newHash) => PasswordHash = newHash;
 
         // public ICollection<Product> Products { get; set; }
     }
