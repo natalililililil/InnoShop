@@ -19,14 +19,10 @@ namespace Users.Infrastructure.Services
         {
             var emailSettings = _configuration.GetSection("EmailSettings");
 
-            var host = emailSettings["SmtpHost"] ?? "smtp.mailtrap.io";
-            var port = int.Parse(emailSettings["SmtpPort"] ?? "2525");
-
+            var host = emailSettings["SmtpHost"] ?? "smtp.mail.ru";
+            var port = int.Parse(emailSettings["SmtpPort"] ?? "587");
             var senderEmail = emailSettings["SenderEmail"] ??
-                              throw new InvalidOperationException("SenderEmail (From address) is not configured.");
-
-            var senderUsername = emailSettings["SenderUsername"] ??
-                                 throw new InvalidOperationException("SenderUsername is not configured.");
+                              throw new InvalidOperationException("SenderEmail is not configured.");
             var senderPassword = emailSettings["SenderPassword"] ??
                                  throw new InvalidOperationException("SenderPassword is not configured.");
 
@@ -34,12 +30,11 @@ namespace Users.Infrastructure.Services
             {
                 client.EnableSsl = true;
                 client.UseDefaultCredentials = false;
-
-                client.Credentials = new NetworkCredential(senderUsername, senderPassword);
+                client.Credentials = new NetworkCredential(senderEmail, senderPassword);
 
                 var mailMessage = new MailMessage
                 {
-                    From = new MailAddress(senderEmail, "Inno Shop"),
+                    From = new MailAddress(senderEmail, "InnoShopApp"),
                     Subject = subject,
                     Body = body,
                     IsBodyHtml = true,

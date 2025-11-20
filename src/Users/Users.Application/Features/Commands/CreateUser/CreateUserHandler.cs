@@ -37,7 +37,7 @@ namespace Users.Application.Features.Commands.CreateUser
             _userRepository.Create(user);
             await _userRepository.SaveAsync(cancellationToken);
 
-            var confirmationLink = $"http://localhost:7096/api/auth/confirm-email?email={user.Email}&token={confirmationToken}";
+            var confirmationLink = $"https://localhost:7096/api/auth/confirm-email?email={user.Email}&token={confirmationToken}";
 
             var subject = "Подтверждение регистрации аккаунта";
             var body = $"Пожалуйста, подтвердите ваш адрес электронной почты, перейдя по ссылке: <a href='{confirmationLink}'>Подтвердить аккаунт</a>";
