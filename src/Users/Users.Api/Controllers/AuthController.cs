@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Users.Application.DTOs;
 using Users.Application.Features.Commands.ConfirmEmail;
 using Users.Application.Features.Commands.CreateUser;
+using Users.Application.Features.Commands.ForgotPassword;
 using Users.Application.Features.Commands.LoginUser;
+using Users.Application.Features.Commands.ResetPassword;
 using Users.Application.Services;
 using Users.Domain.Entities;
 
@@ -78,8 +80,44 @@ namespace Users.Api.Controllers
             }
             catch (Exception ex)
             {
-                // В случае ошибки с токеном или сроком действия
                 return BadRequest($"Ошибка подтверждения: {ex.Message}");
+            }
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+        {
+            try
+            {
+                var command = new ForgotPasswordCommand(dto);
+                var resultMessage = await _mediator.Send(command);
+
+                return Ok(new { message = "Если пользователь существует, ссылка для сброса была отправлена на почту." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Ошибка при обработке запроса: " + ex.Message });
+            }
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+        {
+            try
+            {
+                var command = new ResetPasswordCommand(dto);
+                var success = await _mediator.Send(command);
+
+                if (success)
+                if (success)
+                {
+                    return Ok(new { message = "Пароль успешно сброшен." });
+                }
+                return BadRequest(new { message = "Не удалось сбросить пароль." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
         }
     }
