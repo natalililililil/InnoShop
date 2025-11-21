@@ -61,27 +61,20 @@ namespace Users.Api.Controllers
         [HttpGet("confirm-email")]
         public async Task<IActionResult> ConfirmEmail([FromQuery] string email, [FromQuery] string token)
         {
-            try
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(token))
             {
-                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(token))
-                {
-                    return BadRequest("Некорректная ссылка подтверждения");
-                }
-
-                var command = new ConfirmEmailCommand(email, token);
-                var success = await _mediator.Send(command);
-
-                if (success)
-                {
-                    return Ok("Ваш аккаунт успешно подтвержден! Теперь вы можете войти");
-                }
-
-                return BadRequest("Не удалось подтвердить аккаунт");
+                return BadRequest("Некорректная ссылка подтверждения");
             }
-            catch (Exception ex)
+
+            var command = new ConfirmEmailCommand(email, token);
+            var success = await _mediator.Send(command); 
+
+            if (success)
             {
-                return BadRequest($"Ошибка подтверждения: {ex.Message}");
+                return Ok("Ваш аккаунт успешно подтвержден! Теперь вы можете войти");
             }
+
+            return BadRequest("Не удалось подтвердить аккаунт");
         }
 
         [HttpPost("forgot-password")]

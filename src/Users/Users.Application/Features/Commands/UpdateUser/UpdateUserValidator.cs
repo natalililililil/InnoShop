@@ -1,14 +1,27 @@
 ﻿using FluentValidation;
+using Users.Application.Features.Commands.UpdateUser;
+using Users.Domain.Enums;
 
-namespace Users.Application.Features.Commands.UpdateUser
+public class UpdateUserValidator : AbstractValidator<UpdateUserCommand>
 {
-    public class UpdateUserValidator<TKey> : AbstractValidator<UpdateUserCommand>
+    public UpdateUserValidator()
     {
-        public UpdateUserValidator()
-        {
-            RuleFor(x => x.Id).NotEmpty();
-            RuleFor(x => x.User.Name).NotEmpty().MaximumLength(50);
-            RuleFor(x => x.User.Email).NotEmpty().EmailAddress();
-        }
+        RuleFor(x => x.Id).NotEmpty().WithMessage("ID пользователя не может быть пустым");
+
+        RuleFor(x => x.User.Name)
+            .NotEmpty().WithMessage("Имя не может быть пустым при обновлении")
+            .MaximumLength(50).WithMessage("Имя не должно превышать 50 символов");
+
+        RuleFor(x => x.User.Email)
+            .NotEmpty().WithMessage("Email не может быть пустым при обновлении")
+            .EmailAddress().WithMessage("Некорректный формат Email");
+
+        RuleFor(x => x.User.Role)
+            .Must(BeAValidRole).WithMessage("Некорректное значение роли. Допустимые значения: User, Admin");
+    }
+
+    private bool BeAValidRole(string role)
+    {
+        return Enum.TryParse<Role>(role, true, out _);
     }
 }

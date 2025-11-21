@@ -13,6 +13,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Users.Infrastructure.Services;
 using Users.Application.Services;
+using FluentValidation;
+using Users.Application.Features.Commands.CreateUser;
+using Users.Application.Behavior;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,8 +70,13 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddAuthorization();
 
 builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssembly(typeof(Program).Assembly)
-);
+{
+    cfg.RegisterServicesFromAssembly(typeof(CreateUserHandler).Assembly);
+
+    cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+});
+
+builder.Services.AddValidatorsFromAssembly(typeof(CreateUserHandler).Assembly);
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
@@ -110,6 +118,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.MapControllers();
 
 app.Run();
