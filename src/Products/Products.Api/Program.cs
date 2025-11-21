@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Products.Infrastructure;
 using Products.Infrastructure.Persistence;
+using Products.Application;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,9 +19,11 @@ builder.Services.AddDbContext<ProductsDbContext>(options =>
 
 builder.Services.AddControllers();
 
-var app = builder.Build();
+builder.Services.AddProductsApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
 
-// Configure the HTTP request pipeline.
+
+var app = builder.Build();
 
 app.UseHttpsRedirection();
 
