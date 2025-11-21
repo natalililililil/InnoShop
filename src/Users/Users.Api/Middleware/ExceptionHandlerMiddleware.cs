@@ -29,7 +29,7 @@ public class ExceptionHandlerMiddleware
         catch (Exception ex)
         {
             httpContext.Response.StatusCode = 500;
-            await httpContext.Response.WriteAsJsonAsync(new { message = "Произошла непредвиденная ошибка" });
+            await httpContext.Response.WriteAsJsonAsync(new { message = $"Произошла непредвиденная ошибка: {ex}" });
         }
     }
 }
