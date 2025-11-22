@@ -37,7 +37,7 @@ namespace Products.Domain.Entities
 
         public void SetAvailability(bool available) => IsAvailable = available;
 
-        public void Delete() => IsDeleted = true;
+        public void SoftDelete() => IsDeleted = true;
         public void Restore() => IsDeleted = false;
     }
 }

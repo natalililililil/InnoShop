@@ -9,6 +9,7 @@ namespace Products.Domain.Interfaces
         Task CreateAsync(Product product, CancellationToken cancellationToken = default);
         void Update(Product product);
         void Delete(Product product);
+        void SoftDelete(Product product);
         Task SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }
