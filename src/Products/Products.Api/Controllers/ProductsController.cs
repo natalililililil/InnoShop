@@ -6,8 +6,10 @@ using Products.Application.Features.Commands.CreateProduct;
 using Products.Application.Features.Commands.DeleteProduct;
 using Products.Application.Features.Commands.SoftDeteleProduct;
 using Products.Application.Features.Commands.UpdateProduct;
+using Products.Application.Features.Queries.FilterProducts;
 using Products.Application.Features.Queries.GetAllProducts;
 using Products.Application.Features.Queries.GetProductById;
+using Products.Application.Features.Queries.SearchProducts;
 
 namespace Products.Api.Controllers
 {
@@ -79,6 +81,22 @@ namespace Products.Api.Controllers
             if (sub == null) 
                 throw new UnauthorizedAccessException("Пользователь отсутвствует");
             return Guid.Parse(sub);
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> Search([FromQuery] string query)
+        {
+            var result = await _mediator.Send(new SearchProductsQuery(query));
+            return Ok(result);
+        }
+
+        [HttpGet("filter")]
+        public async Task<IActionResult> Filter([FromQuery] decimal? minPrice, [FromQuery] decimal? maxPrice, [FromQuery] bool? isAvailable)
+        {
+            var result = await _mediator.Send(
+                new FilterProductsQuery(minPrice, maxPrice, isAvailable));
+
+            return Ok(result);
         }
     }
 }

@@ -11,5 +11,8 @@ namespace Products.Domain.Interfaces
         void Delete(Product product);
         void SoftDelete(Product product);
         Task SaveChangesAsync(CancellationToken cancellationToken = default);
+        Task<IEnumerable<Product>> SearchAsync(string query, CancellationToken cancellationToken = default);
+        Task<IEnumerable<Product>> FilterAsync(decimal? minPrice, decimal? maxPrice, bool? isAvailable, CancellationToken cancellationToken = default);
+
     }
 }
