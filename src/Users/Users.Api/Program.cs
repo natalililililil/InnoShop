@@ -69,13 +69,6 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddAuthorization();
 
-builder.Services.AddMediatR(cfg =>
-{
-    cfg.RegisterServicesFromAssembly(typeof(CreateUserHandler).Assembly);
-
-    cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
-});
-
 builder.Services.AddValidatorsFromAssembly(typeof(CreateUserHandler).Assembly);
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
