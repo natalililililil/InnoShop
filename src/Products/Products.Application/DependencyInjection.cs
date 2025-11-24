@@ -2,6 +2,7 @@
 using System.Reflection;
 using FluentValidation;
 using MediatR;
+using Products.Application.Behavior;
 
 namespace Products.Application
 {
@@ -10,10 +11,13 @@ namespace Products.Application
         public static IServiceCollection AddProductsApplication(this IServiceCollection services)
         {
             services.AddMediatR(cfg =>
-                cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+            {
+                cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
+                cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
 
-            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+            });
 
+            services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
             return services;
         }
     }
