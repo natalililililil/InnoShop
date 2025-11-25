@@ -11,10 +11,12 @@ namespace Users.Application.Features.Commands.ActivateUser
     public class ActivateUserHandler : IRequestHandler<ActivateUserCommand, bool>
     {
         private readonly IUserRepository _repository;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public ActivateUserHandler(IUserRepository repository)
+        public ActivateUserHandler(IUserRepository repository, IHttpClientFactory httpClientFactory)
         {
             _repository = repository;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<bool> Handle(ActivateUserCommand request, CancellationToken cancellationToken)
@@ -27,6 +29,9 @@ namespace Users.Application.Features.Commands.ActivateUser
             user.Activate();
             _repository.Update(user);
             await _repository.SaveAsync();
+
+            var client = _httpClientFactory.CreateClient("ProductsApi");
+            var response = await client.PatchAsync($"/api/products/owner/{user.Id}/soft-restore", null, cancellationToken);
 
             return true;
         }

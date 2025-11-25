@@ -5,6 +5,7 @@ using Products.Application.DTOs;
 using Products.Application.Features.Commands.CreateProduct;
 using Products.Application.Features.Commands.DeleteProduct;
 using Products.Application.Features.Commands.SoftDeteleProduct;
+using Products.Application.Features.Commands.SoftRestoreProducts;
 using Products.Application.Features.Commands.UpdateProduct;
 using Products.Application.Features.Queries.FilterProducts;
 using Products.Application.Features.Queries.GetAllProducts;
@@ -57,17 +58,8 @@ namespace Products.Api.Controllers
         }
 
         [Authorize]
-        [HttpDelete("{id:guid}/softdelete")]
-        public async Task<IActionResult> SoftDelete(Guid id)
-        {
-            var ownerId = GetUserIdFromClaims();
-            var success = await _mediator.Send(new SoftDeleteProductCommand(id, ownerId));
-            return success ? NoContent() : NotFound();
-        }
-
-        [Authorize]
         [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete(Guid id)    
         {
             var ownerId = GetUserIdFromClaims();
             var success = await _mediator.Send(new DeleteProductCommand(id, ownerId));
@@ -81,6 +73,21 @@ namespace Products.Api.Controllers
             if (sub == null) 
                 throw new UnauthorizedAccessException("Пользователь отсутвствует");
             return Guid.Parse(sub);
+        }
+
+        [HttpPatch("owner/{ownerId:guid}/soft-delete")]
+        public async Task<IActionResult> SoftDelete(Guid ownerId)
+        {
+            var success = await _mediator.Send(new SoftDeleteProductCommand(ownerId));
+            return success ? NoContent() : NotFound();
+        }
+
+        [HttpPatch("owner/{ownerId:guid}/soft-restore")]
+        public async Task<IActionResult> InternalSoftRestoreByOwner(Guid ownerId)
+        {
+            var success = await _mediator.Send(new SoftRestoreAllProductsByOwnerCommand(ownerId));
+
+            return success ? NoContent() : NotFound();
         }
 
         [HttpGet("search")]

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Products.Domain.Entities;
 using Products.Domain.Interfaces;
 
 namespace Products.Application.Features.Commands.SoftDeteleProduct
@@ -10,12 +11,16 @@ namespace Products.Application.Features.Commands.SoftDeteleProduct
 
         public async Task<bool> Handle(SoftDeleteProductCommand request, CancellationToken cancellationToken)
         {
-            var product = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
-            if (product == null) return false;
-            if (product.OwnerId != request.OwnerId)
-                throw new UnauthorizedAccessException("Вы можете удалять только свои продукты");
-            product.SoftDelete();
-            _productRepository.Update(product);
+            var products = await _productRepository.GetByOwnerIdAsync(request.OwnerId, cancellationToken);
+            if (products == null || !products.Any())
+                return false;
+            
+            foreach (var product in products)
+            {
+                product.SoftDelete(); 
+                _productRepository.Update(product);
+            }
+
             await _productRepository.SaveChangesAsync(cancellationToken);
             return true;
         }

@@ -51,5 +51,9 @@ namespace Products.Infrastructure.Repositories
             return await q.ToListAsync(cancellationToken);
         }
 
+        public async Task<IEnumerable<Product>> GetByOwnerIdAsync(Guid ownerId, CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.Products.Where(p => p.OwnerId == ownerId).ToListAsync(cancellationToken);
+        }
     }
 }

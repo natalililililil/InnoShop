@@ -100,6 +100,11 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddHttpClient("ProductsApi", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7260");
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

@@ -1,20 +1,18 @@
 ﻿using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Users.Domain.Interfaces;
+using System.Net.Http;
 
 namespace Users.Application.Features.Commands.DeactivateUser
 {
     public class DeactivateUserHandler : IRequestHandler<DeactivateUserCommand, bool>
     {
         private readonly IUserRepository _repository;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public DeactivateUserHandler(IUserRepository repository)
+        public DeactivateUserHandler(IUserRepository repository, IHttpClientFactory httpClientFactory)
         {
             _repository = repository;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<bool> Handle(DeactivateUserCommand request, CancellationToken cancellationToken)
@@ -27,6 +25,9 @@ namespace Users.Application.Features.Commands.DeactivateUser
             user.Deactivate();
             _repository.Update(user);
             await _repository.SaveAsync();
+
+            var client = _httpClientFactory.CreateClient("ProductsApi");
+            var response = await client.PatchAsync($"/api/products/owner/{user.Id}/soft-delete", null, cancellationToken);
 
             return true;
         }

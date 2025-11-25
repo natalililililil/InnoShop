@@ -7,5 +7,5 @@ using System.Threading.Tasks;
 
 namespace Products.Application.Features.Commands.SoftDeteleProduct
 {
-    public record SoftDeleteProductCommand(Guid Id, Guid OwnerId) : IRequest<bool>;
+    public record SoftDeleteProductCommand(Guid OwnerId) : IRequest<bool>;
 }
