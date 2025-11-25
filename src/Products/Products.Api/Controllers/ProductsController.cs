@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Products.Api.Filters;
 using Products.Application.DTOs;
 using Products.Application.Features.Commands.CreateProduct;
 using Products.Application.Features.Commands.DeleteProduct;
@@ -75,6 +76,8 @@ namespace Products.Api.Controllers
             return Guid.Parse(sub);
         }
 
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [ServiceFilter(typeof(ApiKeyAuthFilter))]
         [HttpPatch("owner/{ownerId:guid}/soft-delete")]
         public async Task<IActionResult> SoftDelete(Guid ownerId)
         {
@@ -82,6 +85,8 @@ namespace Products.Api.Controllers
             return success ? NoContent() : NotFound();
         }
 
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [ServiceFilter(typeof(ApiKeyAuthFilter))]
         [HttpPatch("owner/{ownerId:guid}/soft-restore")]
         public async Task<IActionResult> SoftRestore(Guid ownerId)
         {
