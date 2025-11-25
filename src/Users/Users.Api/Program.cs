@@ -100,9 +100,12 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+var internalServiceKey = builder.Configuration.GetValue<string>("ApiKeys:InternalServiceKey");
+
 builder.Services.AddHttpClient("ProductsApi", client =>
 {
     client.BaseAddress = new Uri("https://localhost:7260");
+    client.DefaultRequestHeaders.Add("X-Internal-Api-Key", internalServiceKey);
 });
 
 var app = builder.Build();

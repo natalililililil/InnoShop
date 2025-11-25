@@ -83,7 +83,7 @@ namespace Products.Api.Controllers
         }
 
         [HttpPatch("owner/{ownerId:guid}/soft-restore")]
-        public async Task<IActionResult> InternalSoftRestoreByOwner(Guid ownerId)
+        public async Task<IActionResult> SoftRestore(Guid ownerId)
         {
             var success = await _mediator.Send(new SoftRestoreAllProductsByOwnerCommand(ownerId));
 
