@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Products.Api.Middleware;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -86,8 +87,6 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-//app.UseMiddleware<ExceptionMiddleware>(); позже сделать
-
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -97,5 +96,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.MapControllers();
 app.Run();

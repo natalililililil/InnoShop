@@ -27,7 +27,11 @@ namespace Products.Application.Behavior
                     .ToList();
 
                 if (errors.Count != 0)
-                    throw new ValidationException(errors);
+                {
+                    var errorMessages = string.Join("; ", errors.Select(f => f.ErrorMessage));
+                    throw new ValidationException($"Ошибка валидации: {errorMessages}");
+                }
+                    
             }
 
             return await next();
