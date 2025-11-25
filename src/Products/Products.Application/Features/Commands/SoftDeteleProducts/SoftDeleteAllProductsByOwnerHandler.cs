@@ -2,14 +2,14 @@
 using Products.Domain.Entities;
 using Products.Domain.Interfaces;
 
-namespace Products.Application.Features.Commands.SoftDeteleProduct
+namespace Products.Application.Features.Commands.SoftDeteleProducts
 {
-    public class SoftDeleteProductHandler : IRequestHandler<SoftDeleteProductCommand, bool>
+    public class SoftDeleteAllProductsByOwnerHandler : IRequestHandler<SoftDeleteAllProductsByOwnerCommand, bool>
     {
         public readonly IProductRepository _productRepository;
-        public SoftDeleteProductHandler(IProductRepository productRepository) => _productRepository = productRepository;
+        public SoftDeleteAllProductsByOwnerHandler(IProductRepository productRepository) => _productRepository = productRepository;
 
-        public async Task<bool> Handle(SoftDeleteProductCommand request, CancellationToken cancellationToken)
+        public async Task<bool> Handle(SoftDeleteAllProductsByOwnerCommand request, CancellationToken cancellationToken)
         {
             var products = await _productRepository.GetByOwnerIdAsync(request.OwnerId, cancellationToken);
             if (products == null || !products.Any())

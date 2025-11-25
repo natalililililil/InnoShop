@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Products.Application.DTOs;
 using Products.Application.Features.Commands.CreateProduct;
 using Products.Application.Features.Commands.DeleteProduct;
-using Products.Application.Features.Commands.SoftDeteleProduct;
+using Products.Application.Features.Commands.SoftDeteleProducts;
 using Products.Application.Features.Commands.SoftRestoreProducts;
 using Products.Application.Features.Commands.UpdateProduct;
 using Products.Application.Features.Queries.FilterProducts;
-using Products.Application.Features.Queries.GetAllProducts;
+using Products.Application.Features.Queries.GetAllActiveProducts;
 using Products.Application.Features.Queries.GetProductById;
 using Products.Application.Features.Queries.SearchProducts;
 
@@ -24,7 +24,7 @@ namespace Products.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllProducts()
         {
-            var products = await _mediator.Send(new GetAllProductsQuery());
+            var products = await _mediator.Send(new GetAllActiveProductsQuery());
             if (products == null) 
                 return NotFound();
             return Ok(products);
@@ -78,7 +78,7 @@ namespace Products.Api.Controllers
         [HttpPatch("owner/{ownerId:guid}/soft-delete")]
         public async Task<IActionResult> SoftDelete(Guid ownerId)
         {
-            var success = await _mediator.Send(new SoftDeleteProductCommand(ownerId));
+            var success = await _mediator.Send(new SoftDeleteAllProductsByOwnerCommand(ownerId));
             return success ? NoContent() : NotFound();
         }
 

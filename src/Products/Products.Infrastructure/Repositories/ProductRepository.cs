@@ -10,9 +10,9 @@ namespace Products.Infrastructure.Repositories
         private readonly ProductsDbContext _dbContext;
         public ProductRepository(ProductsDbContext dbContext) => _dbContext = dbContext;
 
-        public async Task<IEnumerable<Product?>> GetAllAsync(CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Product?>> GetAllActiveProductsAsync(CancellationToken cancellationToken = default)
         {
-            return await _dbContext.Products.AsNoTracking().ToListAsync(cancellationToken);
+            return await _dbContext.Products.Where(p => p.IsDeleted == false).AsNoTracking().ToListAsync(cancellationToken);
         }
         public async Task<Product?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
             => await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
