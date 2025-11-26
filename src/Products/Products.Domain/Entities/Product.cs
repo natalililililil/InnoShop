@@ -27,6 +27,15 @@ namespace Products.Domain.Entities
             IsAvailable = true;
             IsDeleted = false;
         }
+        public Product(Guid id, string name, string description, decimal price, Guid ownerId)
+        {
+            Id = id;
+            Update(name, description, price);
+            OwnerId = ownerId;
+            CreatedAt = DateTime.UtcNow;
+            IsAvailable = true;
+            IsDeleted = false;
+        }
 
         public void Update(string name, string description, decimal price)
         {
