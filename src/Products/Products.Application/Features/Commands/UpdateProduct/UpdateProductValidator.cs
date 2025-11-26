@@ -14,7 +14,7 @@ namespace Products.Application.Features.Commands.UpdateProduct
                 .MaximumLength(2000).WithMessage("Описание не может превышать 2000 символов");
 
             RuleFor(x => x.Product.Price)
-                .GreaterThanOrEqualTo(0).WithMessage("Цена не может быть отрицательной");
+                .GreaterThan(0).WithMessage("Цена должна быть больше нуля");
         }
     }
 }

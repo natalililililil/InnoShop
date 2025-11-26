@@ -26,17 +26,6 @@ namespace Products.Tests.Unit_Tests.Validators
         }
 
         [Fact]
-        public void Should_Not_Have_Error_When_Price_Is_Zero()
-        {
-            var validDto = new UpdateProductDto { Name = "Zero Price", Price = 0 };
-            var command = new UpdateProductCommand(_productId, _ownerId, validDto);
-
-            var result = _validator.TestValidate(command);
-
-            result.ShouldNotHaveAnyValidationErrors();
-        }
-
-        [Fact]
         public void Should_Have_Error_When_Name_Is_Empty_On_Update()
         {
             var invalidDto = new UpdateProductDto { Name = string.Empty, Price = 10 };
@@ -60,14 +49,14 @@ namespace Products.Tests.Unit_Tests.Validators
         }
 
         [Fact]
-        public void Should_Have_Error_When_Price_Is_Negative_On_Update()
+        public void Should_Have_Error_When_Price_Is_Negative_On_Update_Or_Zero()
         {
-            var invalidDto = new UpdateProductDto { Name = "Valid", Price = -1 };
+            var invalidDto = new UpdateProductDto { Name = "Valid", Price = 0 };
             var command = new UpdateProductCommand(_productId, _ownerId, invalidDto);
 
             _validator.TestValidate(command)
                 .ShouldHaveValidationErrorFor(cmd => cmd.Product.Price)
-                .WithErrorMessage("Цена не может быть отрицательной");
+                .WithErrorMessage("Цена должна быть больше нуля");
         }
     }
 }
