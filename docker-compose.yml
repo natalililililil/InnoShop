@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  mssql:
+    image: mcr.microsoft.com/azure-sql-edge
+    container_name: inno_mssql
+    environment:
+      MSSQL_SA_PASSWORD: '12zxasqW!'
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+      - ./docker/sql/init:/usr/config
+      - ./docker/sql/setup.sh:/usr/local/bin/setup.sh
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "${MSSQL_SA_PASSWORD}", "-Q", "SELECT 1;"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    command: /usr/local/bin/setup.sh
+
+  users-api:
+    build:
+      context: ./src/Users  
+      dockerfile: Users.Api/Dockerfile
+    depends_on:
+      mssql:
+        condition: service_healthy
+    environment:
+      - ConnectionStrings__DefaultConnection=${USERS_DB}
+      - SECRET=${JWT_SECRET}
+      - EmailSettings__SmtpHost=${SMTP_HOST}
+      - EmailSettings__SmtpPort=${SMTP_PORT}
+      - EmailSettings__SenderEmail=${SMTP_USER}
+      - EmailSettings__SenderPassword=${SMTP_PASSWORD}
+      - ApiKeys__InternalServiceKey=${INTERNAL_API_KEY}
+    ports:
+      - "5001:80"
+    env_file: .env
+
+  products-api:
+    build: 
+      context: ./src/Products
+      dockerfile: Products.Api/Dockerfile
+    depends_on:
+      mssql:
+        condition: service_healthy
+    environment:
+      - ConnectionStrings__DefaultConnection=${PRODUCTS_DB}
+      - SECRET=${JWT_SECRET}
+      - ApiKeys__InternalServiceKey=${INTERNAL_API_KEY}
+    ports:
+      - "5002:80"
+    env_file: .env
+
+volumes:
+  mssql_data:

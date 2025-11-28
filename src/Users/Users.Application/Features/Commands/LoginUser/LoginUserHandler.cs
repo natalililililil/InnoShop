@@ -45,7 +45,7 @@ namespace Users.Application.Features.Commands.LoginUser
 
             if (!user.EmailConfirmed)
             {
-                throw new Exception("Аккаунт не подтвержден. Пожалуйста, проверьте свою почту для подтверждения");
+                throw new Exception("Аккаунт не подтвержден. Сообщение было выслано на Ваш email. Пожалуйста, проверьте свою почту для подтверждения");
             }
 
             var jwtSettings = _configuration.GetSection("JwtSettings");

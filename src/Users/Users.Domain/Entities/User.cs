@@ -57,7 +57,5 @@ namespace Users.Domain.Entities
             PasswordResetTokenExpiry = null;
         }
         public void UpdatePasswordHash(string newHash) => PasswordHash = newHash;
-
-        // public ICollection<Product> Products { get; set; }
     }
 }

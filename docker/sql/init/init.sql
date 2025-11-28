@@ -1,0 +1,2 @@
+CREATE DATABASE InnoShopUsersDB;
+CREATE DATABASE InnoShopProductsDB;
