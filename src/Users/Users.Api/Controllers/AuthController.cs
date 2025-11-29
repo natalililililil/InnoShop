@@ -8,6 +8,7 @@ using Users.Application.Features.Commands.LoginUser;
 using Users.Application.Features.Commands.ResetPassword;
 using Users.Application.Services;
 using Users.Domain.Entities;
+using Users.Tests.Unit_Tests.DTOs;
 
 namespace Users.Api.Controllers
 {
@@ -50,11 +51,11 @@ namespace Users.Api.Controllers
                 var command = new LoginUserCommand(loginDto);
                 var userId = await _mediator.Send(command);
 
-                return Ok(new { UserId = userId, Message = "Аутентификация успешна." });
+                return Ok(userId);
             }
             catch (Exception ex)
             {
-                return Unauthorized(new { message = ex.Message });
+                return Unauthorized(new MessageDto(ex.Message));
             }
         }
 
@@ -63,7 +64,7 @@ namespace Users.Api.Controllers
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(token))
             {
-                return BadRequest("Некорректная ссылка подтверждения");
+                return BadRequest(new MessageDto("Некорректная ссылка подтверждения"));
             }
 
             var command = new ConfirmEmailCommand(email, token);
@@ -71,10 +72,10 @@ namespace Users.Api.Controllers
 
             if (success)
             {
-                return Ok("Ваш аккаунт успешно подтвержден! Теперь вы можете войти");
+                return Ok(new MessageDto("Ваш аккаунт успешно подтвержден! Теперь вы можете войти"));
             }
 
-            return BadRequest("Не удалось подтвердить аккаунт");
+            return BadRequest(new MessageDto("Не удалось подтвердить аккаунт"));
         }
 
         [HttpPost("forgot-password")]
@@ -85,11 +86,11 @@ namespace Users.Api.Controllers
                 var command = new ForgotPasswordCommand(dto);
                 var resultMessage = await _mediator.Send(command);
 
-                return Ok(new { message = "Если пользователь существует, ссылка для сброса была отправлена на почту." });
+                return Ok(new MessageDto("Если пользователь существует, ссылка для сброса была отправлена на почту"));
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = "Ошибка при обработке запроса: " + ex.Message });
+                return BadRequest(new MessageDto("Ошибка при обработке запроса: " + ex.Message));
             }
         }
 
@@ -104,13 +105,13 @@ namespace Users.Api.Controllers
                 if (success)
                 if (success)
                 {
-                    return Ok(new { message = "Пароль успешно сброшен." });
+                    return Ok(new MessageDto("Пароль успешно сброшен."));
                 }
-                return BadRequest(new { message = "Не удалось сбросить пароль." });
+                return BadRequest(new MessageDto("Не удалось сбросить пароль."));
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(new MessageDto(ex.Message));
             }
         }
     }

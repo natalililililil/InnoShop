@@ -29,6 +29,13 @@ namespace Users.Domain.Entities
             PasswordHash = passwordHash;
             Role = role;
         }
+        public User(Guid id, string name, string email, string passwordHash, Role role) : base(id)
+        {
+            Name = name;
+            Email = email;
+            PasswordHash = passwordHash;
+            Role = role;
+        }
 
         public void Deactivate() => IsActive = false;
         public void Activate() => IsActive = true;

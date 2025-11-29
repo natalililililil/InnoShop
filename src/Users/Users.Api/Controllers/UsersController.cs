@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Users.Application.DTOs;
-using Users.Application.Features.Commands.ActivateUser;
+using Users.Application.Features.Commands.ChangeUserStatusBase.ActivateUser;
 using Users.Application.Features.Commands.CreateUser;
-using Users.Application.Features.Commands.DeactivateUser;
+using Users.Application.Features.Commands.ChangeUserStatusBase.DeactivateUser;
 using Users.Application.Features.Commands.DeleteUser;
 using Users.Application.Features.Commands.UpdateUser;
 using Users.Application.Features.Queries.GetAllUsers;
