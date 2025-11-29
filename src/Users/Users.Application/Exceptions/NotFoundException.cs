@@ -1,7 +1,7 @@
 ﻿namespace Users.Application.Exceptions
 {
-    public class NotFoundException: Exception
+    public class NotFoundException : Exception
     {
-        public NotFoundException(string message) : base() { }
+        public NotFoundException(string message) : base(message) { }
     }
 }

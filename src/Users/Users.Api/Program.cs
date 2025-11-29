@@ -17,78 +17,84 @@ using FluentValidation;
 using Users.Application.Features.Commands.CreateUser;
 using Users.Application.Behavior;
 
-var builder = WebApplication.CreateBuilder(args);
-
-builder.Configuration
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
-    .AddUserSecrets<Program>()
-    .AddEnvironmentVariables();
-
-var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secretKey = builder.Configuration.GetValue<string>("SECRET");
-
-if (string.IsNullOrEmpty(secretKey))
+namespace Users.Api
 {
-    throw new InvalidOperationException("JWT Secret key 'SECRET' environment variable is not configured");
-}
-var key = Encoding.ASCII.GetBytes(secretKey);
-
-builder.Services.AddApplication();
-builder.Services.AddInfrastructure(builder.Configuration);
-
-builder.Services.AddDbContext<UserDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-);
-
-builder.Services.AddSingleton<IPasswordHasher<object>, PasswordHasher<object>>();
-builder.Services.AddScoped<ITokenService, TokenService>();
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = builder.Environment.IsProduction();
-    options.SaveToken = true;
-    options.TokenValidationParameters = new TokenValidationParameters
+    public class Program
     {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = true,
-        ValidIssuer = jwtSettings["ValidIssuer"],
-        ValidateAudience = true,
-        ValidAudience = jwtSettings["ValidAudience"],
-        ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero
-    };
-});
+        public static void Main(string[] args)
+        {
+            var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddAuthorization();
+            builder.Configuration
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+                .AddUserSecrets<Program>()
+                .AddEnvironmentVariables();
 
-builder.Services.AddValidatorsFromAssembly(typeof(CreateUserHandler).Assembly);
+            var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+            var secretKey = builder.Configuration.GetValue<string>("SECRET");
 
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+            if (string.IsNullOrEmpty(secretKey))
+            {
+                throw new InvalidOperationException("JWT Secret key 'SECRET' environment variable is not configured");
+            }
+            var key = Encoding.ASCII.GetBytes(secretKey);
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Users API", Version = "v1" });
+            builder.Services.AddApplication();
+            builder.Services.AddInfrastructure(builder.Configuration);
 
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        In = ParameterLocation.Header,
-        Description = "Введите JWT-токен в формате: Bearer {токен}",
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-    });
+            builder.Services.AddDbContext<UserDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+            );
 
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+            builder.Services.AddSingleton<IPasswordHasher<object>, PasswordHasher<object>>();
+            builder.Services.AddScoped<ITokenService, TokenService>();
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = builder.Environment.IsProduction();
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = true,
+                    ValidIssuer = jwtSettings["ValidIssuer"],
+                    ValidateAudience = true,
+                    ValidAudience = jwtSettings["ValidAudience"],
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddAuthorization();
+
+            builder.Services.AddValidatorsFromAssembly(typeof(CreateUserHandler).Assembly);
+
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+            builder.Services.AddControllers();
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Users API", Version = "v1" });
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Введите JWT-токен в формате: Bearer {токен}",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
@@ -98,48 +104,52 @@ builder.Services.AddSwaggerGen(c =>
             Array.Empty<string>()
         }
     });
-});
+            });
 
-var internalServiceKey = builder.Configuration.GetValue<string>("ApiKeys:InternalServiceKey");
+            var internalServiceKey = builder.Configuration.GetValue<string>("ApiKeys:InternalServiceKey");
 
-builder.Services.AddHttpClient("ProductsApi", client =>
-{
-    client.BaseAddress = new Uri("https://localhost:7260");
-    client.DefaultRequestHeaders.Add("X-Internal-Api-Key", internalServiceKey);
-});
+            builder.Services.AddHttpClient("ProductsApi", client =>
+            {
+                client.BaseAddress = new Uri("https://localhost:7260");
+                client.DefaultRequestHeaders.Add("X-Internal-Api-Key", internalServiceKey);
+            });
 
-var app = builder.Build();
+            var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    try
-    {
-        var context = services.GetRequiredService<UserDbContext>();
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                try
+                {
+                    var context = services.GetRequiredService<UserDbContext>();
 
-        context.Database.Migrate();
+                    context.Database.Migrate();
 
-        // await UserDbContextSeed.SeedAsync(context); 
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Произошла ошибка при миграции базы данных Users.Api");
+                    // await UserDbContextSeed.SeedAsync(context); 
+                }
+                catch (Exception ex)
+                {
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "Произошла ошибка при миграции базы данных Users.Api");
+                }
+            }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Users API v1"));
+
+            if (!app.Environment.IsProduction())
+            {
+                app.UseHttpsRedirection();
+            }
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseMiddleware<ExceptionHandlerMiddleware>();
+            app.MapControllers();
+
+            app.Run();
+        }
     }
 }
-
-app.UseSwagger();
-app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Users API v1"));
-
-if (!app.Environment.IsProduction())
-{
-    app.UseHttpsRedirection();
-}
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.UseMiddleware<ExceptionHandlerMiddleware>();
-app.MapControllers();
-
-app.Run();
+            

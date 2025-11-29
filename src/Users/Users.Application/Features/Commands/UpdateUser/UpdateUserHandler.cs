@@ -2,6 +2,7 @@
 using Users.Application.Exceptions;
 using Users.Domain.Interfaces;
 using Users.Domain.Enums;
+using FluentValidation;
 
 namespace Users.Application.Features.Commands.UpdateUser
 {

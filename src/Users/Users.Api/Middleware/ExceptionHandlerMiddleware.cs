@@ -16,14 +16,14 @@ public class ExceptionHandlerMiddleware
         {
             await _next(httpContext);
         }
-        catch (ValidationException ex)
-        {
-            httpContext.Response.StatusCode = 400;
-            await httpContext.Response.WriteAsJsonAsync(new { message = ex.Message });
-        }
         catch (NotFoundException ex)
         {
             httpContext.Response.StatusCode = 404;
+            await httpContext.Response.WriteAsJsonAsync(new { message = ex.Message });
+        }
+        catch (ValidationException ex)
+        {
+            httpContext.Response.StatusCode = 400;
             await httpContext.Response.WriteAsJsonAsync(new { message = ex.Message });
         }
         catch (Exception ex)

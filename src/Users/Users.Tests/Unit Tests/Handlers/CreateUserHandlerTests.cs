@@ -7,6 +7,7 @@ using Users.Application.Services;
 using Users.Application.DTOs;
 using Users.Domain.Enums;
 using System.Net.Mail;
+using FluentValidation;
 
 namespace Users.Tests.Unit_Tests.Handlers
 {

@@ -5,6 +5,7 @@ using Users.Domain.Entities;
 using Users.Domain.Enums;
 using Users.Application.DTOs;
 using Users.Application.Exceptions;
+using FluentValidation;
 
 namespace Users.Tests.Unit_Tests.Handlers
 {
