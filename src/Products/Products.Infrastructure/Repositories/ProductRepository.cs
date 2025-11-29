@@ -31,13 +31,14 @@ namespace Products.Infrastructure.Repositories
             query = query.Trim();
 
             return await _dbContext.Products
+                .Where(p => p.IsDeleted == false)
                 .Where(p => p.Name.Contains(query) || p.Description.Contains(query))
                 .ToListAsync(cancellationToken);
         }
 
         public async Task<IEnumerable<Product>> FilterAsync(decimal? minPrice, decimal? maxPrice, bool? isAvailable, CancellationToken cancellationToken)
         {
-            var q = _dbContext.Products.AsQueryable();
+            var q = _dbContext.Products.Where(p => p.IsDeleted == false).AsQueryable();
 
             if (minPrice.HasValue)
                 q = q.Where(p => p.Price >= minPrice.Value);
