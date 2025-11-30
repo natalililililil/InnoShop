@@ -1,17 +1,155 @@
-var builder = WebApplication.CreateBuilder(args);
+﻿using Microsoft.EntityFrameworkCore;
+using MediatR;
+using Microsoft.OpenApi.Models;
+using Users.Application;
+using Users.Infrastructure;
+using Users.Infrastructure.Persistence;
+using Users.Infrastructure.Repositories;
+using Microsoft.Extensions.DependencyInjection;
+using Users.Domain.Interfaces;
+using Microsoft.AspNetCore.Identity;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Users.Infrastructure.Services;
+using Users.Application.Services;
+using FluentValidation;
+using Users.Application.Features.Commands.CreateUser;
+using Users.Application.Behavior;
 
-// Add services to the container.
+namespace Users.Api
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+            builder.Configuration
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+                .AddUserSecrets<Program>()
+                .AddEnvironmentVariables();
 
-var app = builder.Build();
+            var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+            var secretKey = builder.Configuration.GetValue<string>("SECRET");
 
-// Configure the HTTP request pipeline.
+            if (string.IsNullOrEmpty(secretKey))
+            {
+                throw new InvalidOperationException("JWT Secret key 'SECRET' environment variable is not configured");
+            }
+            var key = Encoding.ASCII.GetBytes(secretKey);
 
-app.UseHttpsRedirection();
+            builder.Services.AddApplication();
+            builder.Services.AddInfrastructure(builder.Configuration);
 
-app.UseAuthorization();
+            builder.Services.AddDbContext<UserDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+            );
 
-app.MapControllers();
+            builder.Services.AddSingleton<IPasswordHasher<object>, PasswordHasher<object>>();
+            builder.Services.AddScoped<ITokenService, TokenService>();
 
-app.Run();
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = builder.Environment.IsProduction();
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = true,
+                    ValidIssuer = jwtSettings["ValidIssuer"],
+                    ValidateAudience = true,
+                    ValidAudience = jwtSettings["ValidAudience"],
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddAuthorization();
+
+            builder.Services.AddValidatorsFromAssembly(typeof(CreateUserHandler).Assembly);
+
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+            builder.Services.AddControllers();
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Users API", Version = "v1" });
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Enter the JWT token in the format: Bearer {token}",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            Array.Empty<string>()
+        }
+    });
+            });
+
+            var internalServiceKey = builder.Configuration.GetValue<string>("ApiKeys:InternalServiceKey");
+
+            builder.Services.AddHttpClient("ProductsApi", client =>
+            {
+                client.BaseAddress = new Uri("https://localhost:7260");
+                client.DefaultRequestHeaders.Add("X-Internal-Api-Key", internalServiceKey);
+            });
+
+            var app = builder.Build();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                try
+                {
+                    var context = services.GetRequiredService<UserDbContext>();
+
+                    context.Database.Migrate();
+
+                    // await UserDbContextSeed.SeedAsync(context); 
+                }
+                catch (Exception ex)
+                {
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "Произошла ошибка при миграции базы данных Users.Api");
+                }
+            }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Users API v1"));
+
+            if (!app.Environment.IsProduction())
+            {
+                app.UseHttpsRedirection();
+            }
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseMiddleware<ExceptionHandlerMiddleware>();
+            app.MapControllers();
+
+            app.Run();
+        }
+    }
+}
+            
