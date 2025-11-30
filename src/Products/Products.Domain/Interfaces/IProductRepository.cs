@@ -14,5 +14,6 @@ namespace Products.Domain.Interfaces
         Task<IEnumerable<Product>> SearchAsync(string query, CancellationToken cancellationToken = default);
         Task<IEnumerable<Product>> FilterAsync(decimal? minPrice, decimal? maxPrice, bool? isAvailable, CancellationToken cancellationToken = default);
         Task<IEnumerable<Product>> GetByOwnerIdAsync(Guid ownerId, CancellationToken cancellationToken = default);
+        void DeleteRange(IEnumerable<Product> products);
     }
 }

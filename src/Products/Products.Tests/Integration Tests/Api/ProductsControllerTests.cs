@@ -254,5 +254,42 @@ namespace Products.Tests.Integration_Tests.API
             Assert.DoesNotContain(products, p => p.Name.Contains("Expensive Unavailable"));
             Assert.DoesNotContain(products, p => p.Name.Contains("Deleted High"));
         }
+
+        [Fact]
+        public async Task DeleteAllByOwner_ExistingOwner_ReturnsNoContentAndDeletesAllProducts()
+        {
+            var ownerToDelete = Guid.NewGuid();
+            await SeedProduct(ownerToDelete, "Product 1 to Delete", 10m);
+            await SeedProduct(ownerToDelete, "Product 2 to Delete", 20m);
+            await SeedProduct(_testOwnerId, "Unrelated Product", 50m);
+
+            var response = await _client.DeleteAsync($"{BaseUrl}/owner/{ownerToDelete}/delete");
+
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+
+            var deletedProducts = await _context.Set<Product>()
+                .AsNoTracking()
+                .Where(p => p.OwnerId == ownerToDelete)
+                .ToListAsync();
+
+            Assert.Empty(deletedProducts);
+
+            var unaffectedProduct = await _context.Set<Product>()
+                .AsNoTracking()
+                .SingleOrDefaultAsync(p => p.OwnerId == _testOwnerId);
+
+            Assert.NotNull(unaffectedProduct);
+            Assert.Equal("Unrelated Product", unaffectedProduct.Name);
+        }
+
+        [Fact]
+        public async Task DeleteAllByOwner_NonExistingOwner_ReturnsNotFound()
+        {
+            var nonExistentOwnerId = Guid.NewGuid();
+
+            var response = await _client.DeleteAsync($"{BaseUrl}/owner/{nonExistentOwnerId}/delete");
+
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        }
     }
 }

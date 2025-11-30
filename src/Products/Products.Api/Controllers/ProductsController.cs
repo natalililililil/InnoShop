@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Products.Api.Filters;
 using Products.Application.DTOs;
 using Products.Application.Features.Commands.CreateProduct;
+using Products.Application.Features.Commands.DeleteAllProducts;
 using Products.Application.Features.Commands.DeleteProduct;
 using Products.Application.Features.Commands.SoftDeteleProducts;
 using Products.Application.Features.Commands.SoftRestoreProducts;
@@ -109,6 +110,15 @@ namespace Products.Api.Controllers
                 new FilterProductsQuery(minPrice, maxPrice, isAvailable));
 
             return Ok(result);
+        }
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [ServiceFilter(typeof(ApiKeyAuthFilter))]
+        [HttpDelete("owner/{ownerId:guid}/delete")]
+        public async Task<IActionResult> DeleteAllByOwner(Guid ownerId)
+        {
+            var success = await _mediator.Send(new DeleteAllProductsByOwnerCommand(ownerId));
+            return success ? NoContent() : NotFound();
         }
     }
 }

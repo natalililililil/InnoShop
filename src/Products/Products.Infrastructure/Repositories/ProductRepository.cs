@@ -56,5 +56,9 @@ namespace Products.Infrastructure.Repositories
         {
             return await _dbContext.Products.Where(p => p.OwnerId == ownerId).ToListAsync(cancellationToken);
         }
+        public void DeleteRange(IEnumerable<Product> products)
+        {
+            _dbContext.Products.RemoveRange(products);
+        }
     }
 }
