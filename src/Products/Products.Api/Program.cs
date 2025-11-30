@@ -37,7 +37,7 @@ namespace Products.Api
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
-                    Description = "¬ведите JWT-токен в формате: Bearer {токен}",
+                    Description = "Enter the JWT token in the format: Bearer {token}",
                     Name = "Authorization",
                     Type = SecuritySchemeType.ApiKey,
                     Scheme = "Bearer"

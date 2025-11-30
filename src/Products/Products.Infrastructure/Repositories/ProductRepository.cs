@@ -22,7 +22,6 @@ namespace Products.Infrastructure.Repositories
         public void Update(Product product) => _dbContext.Products.Update(product);
 
         public void Delete(Product product) => _dbContext.Products.Remove(product);
-        public void SoftDelete(Product product) => _dbContext.Products.Remove(product);
 
         public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
             => await _dbContext.SaveChangesAsync(cancellationToken);
