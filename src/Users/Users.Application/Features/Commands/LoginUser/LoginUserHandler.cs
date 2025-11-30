@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Users.Application.DTOs;
+using Users.Application.Exceptions;
 using Users.Application.Services;
 using Users.Domain.Interfaces;
 
@@ -29,7 +30,7 @@ namespace Users.Application.Features.Commands.LoginUser
 
             if (user == null || !user.IsActive)
             {
-                throw new Exception("Неверный логин или пароль.");
+                throw new AuthenticationException("Неверный логин или пароль.");
             }
 
             var verificationResult = _passwordHasher.VerifyHashedPassword(
@@ -40,12 +41,12 @@ namespace Users.Application.Features.Commands.LoginUser
 
             if (verificationResult == PasswordVerificationResult.Failed)
             {
-                throw new Exception("Неверный логин или пароль.");
+                throw new AuthenticationException("Неверный логин или пароль.");
             }
 
             if (!user.EmailConfirmed)
             {
-                throw new Exception("Аккаунт не подтвержден. Сообщение было выслано на Ваш email. Пожалуйста, проверьте свою почту для подтверждения");
+                throw new AuthenticationException("Аккаунт не подтвержден. Сообщение было выслано на Ваш email. Пожалуйста, проверьте свою почту для подтверждения");
             }
 
             var jwtSettings = _configuration.GetSection("JwtSettings");

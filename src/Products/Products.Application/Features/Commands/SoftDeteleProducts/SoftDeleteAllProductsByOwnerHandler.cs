@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using Products.Domain.Entities;
 using Products.Domain.Interfaces;
 
 namespace Products.Application.Features.Commands.SoftDeteleProducts

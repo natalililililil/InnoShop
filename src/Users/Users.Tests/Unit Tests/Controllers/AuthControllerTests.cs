@@ -13,6 +13,7 @@ using Users.Application.Features.Commands.ForgotPassword;
 using Users.Application.Features.Commands.ResetPassword;
 using Users.Domain.Enums;
 using Users.Tests.Unit_Tests.DTOs;
+using Users.Application.Exceptions;
 
 namespace Users.Tests.Unit_Tests.Controlles
 {
@@ -76,18 +77,18 @@ namespace Users.Tests.Unit_Tests.Controlles
         }
 
         [Fact]
-        public async Task Login_InvalidCredentials_ReturnsUnauthorized()
+        public async Task Login_InvalidCredentials_ThrowsAuthenticationException()
         {
-            var exceptionMessage = "Неверный email или пароль";
+            var exceptionMessage = "Неверный логин или пароль.";
+
             _mockMediator.Setup(m => m.Send(It.IsAny<LoginUserCommand>(), default))
-                         .ThrowsAsync(new UnauthorizedAccessException(exceptionMessage));
+                         .ThrowsAsync(new AuthenticationException(exceptionMessage));
 
-            var result = await _controller.Login(new LoginDto());
+            var exception = await Assert.ThrowsAsync<AuthenticationException>(
+                () => _controller.Login(new LoginDto())
+            );
 
-            var unauthorizedResult = Assert.IsType<UnauthorizedObjectResult>(result);
-            var returnedDto = Assert.IsType<MessageDto>(unauthorizedResult.Value);
-
-            Assert.Equal(exceptionMessage, returnedDto.Message);
+            Assert.Equal(exceptionMessage, exception.Message);
         }
 
         [Theory]

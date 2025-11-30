@@ -26,6 +26,11 @@ public class ExceptionHandlerMiddleware
             httpContext.Response.StatusCode = 400;
             await httpContext.Response.WriteAsJsonAsync(new { message = ex.Message });
         }
+        catch (AuthenticationException ex)
+        {
+            httpContext.Response.StatusCode = ex.StatusCode;
+            await httpContext.Response.WriteAsJsonAsync(new { message = ex.Message });
+        }
         catch (Exception ex)
         {
             httpContext.Response.StatusCode = 500;

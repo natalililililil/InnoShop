@@ -46,17 +46,10 @@ namespace Users.Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
-            try
-            {
-                var command = new LoginUserCommand(loginDto);
-                var userId = await _mediator.Send(command);
+            var command = new LoginUserCommand(loginDto);
+            var userId = await _mediator.Send(command);
 
-                return Ok(userId);
-            }
-            catch (Exception ex)
-            {
-                return Unauthorized(new MessageDto(ex.Message));
-            }
+            return Ok(userId);
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
@@ -82,17 +75,10 @@ namespace Users.Api.Controllers
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
         {
-            try
-            {
-                var command = new ForgotPasswordCommand(dto);
-                var resultMessage = await _mediator.Send(command);
+            var command = new ForgotPasswordCommand(dto);
+            var resultMessage = await _mediator.Send(command);
 
-                return Ok(new MessageDto("Если пользователь существует, ссылка для сброса была отправлена на почту"));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new MessageDto("Ошибка при обработке запроса: " + ex.Message));
-            }
+            return Ok(new MessageDto("Если пользователь существует, ссылка для сброса была отправлена на почту"));
         }
 
         [HttpPost("reset-password")]
@@ -103,7 +89,6 @@ namespace Users.Api.Controllers
                 var command = new ResetPasswordCommand(dto);
                 var success = await _mediator.Send(command);
 
-                if (success)
                 if (success)
                 {
                     return Ok(new MessageDto("Пароль успешно сброшен."));

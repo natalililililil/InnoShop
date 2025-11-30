@@ -7,6 +7,7 @@ using Users.Application.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Users.Domain.Enums;
+using Users.Application.Exceptions;
 
 namespace Users.Tests.Unit_Tests.Handlers
 {
@@ -100,7 +101,7 @@ namespace Users.Tests.Unit_Tests.Handlers
             _mockPasswordHasher.Setup(h => h.VerifyHashedPassword(null!, HashedPassword, "WrongPassword"))
                                .Returns(PasswordVerificationResult.Failed);
 
-            var ex = await Assert.ThrowsAsync<Exception>(() => _handler.Handle(command, CancellationToken.None));
+            var ex = await Assert.ThrowsAsync<AuthenticationException>(() => _handler.Handle(command, CancellationToken.None));
             Assert.Equal("Неверный логин или пароль.", ex.Message);
 
             _mockTokenService.Verify(t => t.GenerateToken(It.IsAny<User>(), It.IsAny<DateTime>()), Times.Never);
@@ -115,7 +116,7 @@ namespace Users.Tests.Unit_Tests.Handlers
             _mockRepo.Setup(r => r.GetByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                      .ReturnsAsync((User)null!);
 
-            var ex = await Assert.ThrowsAsync<Exception>(() => _handler.Handle(command, CancellationToken.None));
+            var ex = await Assert.ThrowsAsync<AuthenticationException>(() => _handler.Handle(command, CancellationToken.None));
             Assert.Equal("Неверный логин или пароль.", ex.Message);
         }
 
@@ -130,7 +131,7 @@ namespace Users.Tests.Unit_Tests.Handlers
 
             _mockRepo.Setup(r => r.GetByEmailAsync(TestEmail, It.IsAny<CancellationToken>())).ReturnsAsync(user);
 
-            var ex = await Assert.ThrowsAsync<Exception>(() => _handler.Handle(command, CancellationToken.None));
+            var ex = await Assert.ThrowsAsync<AuthenticationException>(() => _handler.Handle(command, CancellationToken.None));
             Assert.Equal("Неверный логин или пароль.", ex.Message);
         }
 
@@ -148,7 +149,7 @@ namespace Users.Tests.Unit_Tests.Handlers
             _mockPasswordHasher.Setup(h => h.VerifyHashedPassword(null!, HashedPassword, TestPassword))
                                .Returns(PasswordVerificationResult.Success);
 
-            var ex = await Assert.ThrowsAsync<Exception>(() => _handler.Handle(command, CancellationToken.None));
+            var ex = await Assert.ThrowsAsync<AuthenticationException>(() => _handler.Handle(command, CancellationToken.None));
             Assert.Contains("Аккаунт не подтвержден.", ex.Message);
 
             _mockTokenService.Verify(t => t.GenerateToken(It.IsAny<User>(), It.IsAny<DateTime>()), Times.Never);
