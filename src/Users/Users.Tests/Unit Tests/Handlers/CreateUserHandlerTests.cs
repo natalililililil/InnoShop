@@ -8,6 +8,7 @@ using Users.Application.DTOs;
 using Users.Domain.Enums;
 using System.Net.Mail;
 using FluentValidation;
+using Microsoft.Extensions.Configuration;
 
 namespace Users.Tests.Unit_Tests.Handlers
 {
@@ -16,6 +17,8 @@ namespace Users.Tests.Unit_Tests.Handlers
         private readonly Mock<IUserRepository> _mockRepo;
         private readonly Mock<IEmailService> _mockEmailService;
         private readonly Mock<IPasswordHasher<object>> _mockPasswordHasher;
+        private readonly Mock<IConfiguration> _mockConfiguration;
+
         private readonly CreateUserHandler _handler;
 
         private readonly string TestPassword = "TestPassword123";
@@ -26,10 +29,11 @@ namespace Users.Tests.Unit_Tests.Handlers
             _mockRepo = new Mock<IUserRepository>();
             _mockEmailService = new Mock<IEmailService>();
             _mockPasswordHasher = new Mock<IPasswordHasher<object>>();
+            _mockConfiguration = new Mock<IConfiguration>();
 
             _mockPasswordHasher.Setup(h => h.HashPassword(null!, TestPassword)).Returns(HashedPassword);
 
-            _handler = new CreateUserHandler(_mockRepo.Object, _mockEmailService.Object, _mockPasswordHasher.Object);
+            _handler = new CreateUserHandler(_mockRepo.Object, _mockEmailService.Object, _mockPasswordHasher.Object, _mockConfiguration.Object);
         }
 
         [Fact]

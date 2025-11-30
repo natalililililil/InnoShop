@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography;
 using Users.Application.Services;
 using Users.Domain.Entities;
@@ -14,12 +15,15 @@ namespace Users.Application.Features.Commands.CreateUser
         private readonly IUserRepository _userRepository;
         private readonly IEmailService _emailService;
         private readonly IPasswordHasher<object> _passwordHasher;
+        private readonly IConfiguration _configuration;
 
-        public CreateUserHandler(IUserRepository userRepository, IEmailService emailService, IPasswordHasher<object> passwordHasher)
+        public CreateUserHandler(IUserRepository userRepository, IEmailService emailService, 
+            IPasswordHasher<object> passwordHasher, IConfiguration configuration)
         {
             _userRepository = userRepository;
             _emailService = emailService;
             _passwordHasher = passwordHasher;
+            _configuration = configuration;
         }
 
         public async Task<User> Handle(CreateUserCommand request, CancellationToken cancellationToken)
@@ -48,7 +52,8 @@ namespace Users.Application.Features.Commands.CreateUser
 
             try
             {
-                var confirmationLink = $"https://localhost:7096/api/auth/confirm-email?email={user.Email}&token={confirmationToken}";
+                var baseUrl = _configuration["AppBaseUrl"];
+                var confirmationLink = $"{baseUrl}/api/auth/confirm-email?email={user.Email}&token={confirmationToken}";
                 var subject = "Подтверждение регистрации аккаунта";
                 var body = $"Пожалуйста, подтвердите ваш адрес электронной почты, перейдя по ссылке: <a href='{confirmationLink}'>Подтвердить аккаунт</a>";
                 

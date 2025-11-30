@@ -35,6 +35,7 @@ services:
       - EmailSettings__SenderEmail=${SMTP_USER}
       - EmailSettings__SenderPassword=${SMTP_PASSWORD}
       - ApiKeys__InternalServiceKey=${INTERNAL_API_KEY}
+      - AppBaseUrl=http://localhost:5001
     ports:
       - "5001:80"
     env_file: .env

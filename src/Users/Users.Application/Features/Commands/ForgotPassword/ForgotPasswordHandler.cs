@@ -2,18 +2,21 @@
 using Users.Domain.Interfaces;
 using System.Security.Cryptography;
 using Users.Application.Services;
+using Microsoft.Extensions.Configuration;
 
 namespace Users.Application.Features.Commands.ForgotPassword
 {
     public class ForgotPasswordHandler : IRequestHandler<ForgotPasswordCommand, string>
     {
         private readonly IUserRepository _userRepository;
-        private readonly IEmailService _emailService; 
+        private readonly IEmailService _emailService;
+        private readonly IConfiguration _configuration;
 
-        public ForgotPasswordHandler(IUserRepository userRepository, IEmailService emailService)
+        public ForgotPasswordHandler(IUserRepository userRepository, IEmailService emailService, IConfiguration configuration)
         {
             _userRepository = userRepository;
             _emailService = emailService;
+            _configuration = configuration;
         }
 
         public async Task<string> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
@@ -33,7 +36,8 @@ namespace Users.Application.Features.Commands.ForgotPassword
             _userRepository.Update(user); 
             await _userRepository.SaveAsync(cancellationToken);
 
-            var confirmationLink = $"https://localhost:7096/api/auth/reset-password?email={user.Email}&token={resetToken}";
+            var baseUrl = _configuration["AppBaseUrl"];
+            var confirmationLink = $"{baseUrl}/api/auth/reset-password?email={user.Email}&token={resetToken}";
 
             var subject = "Сброс пароля";
             var body = $"Для создания нового пароля перейдите по ссылке: <a href='{confirmationLink}'>Сброс пароля</a>";

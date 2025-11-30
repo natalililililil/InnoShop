@@ -5,6 +5,7 @@ using Users.Domain.Entities;
 using Users.Application.DTOs;
 using Users.Application.Services;
 using Users.Domain.Enums;
+using Microsoft.Extensions.Configuration;
 
 namespace Users.Tests.Unit_Tests.Handlers
 {
@@ -13,6 +14,8 @@ namespace Users.Tests.Unit_Tests.Handlers
         private readonly Mock<IUserRepository> _mockRepo;
         private readonly Mock<IEmailService> _mockEmailService;
         private readonly ForgotPasswordHandler _handler;
+        private readonly Mock<IConfiguration> _mockConfiguration;
+
 
         private readonly string TestEmail = "test@user.com";
 
@@ -20,7 +23,8 @@ namespace Users.Tests.Unit_Tests.Handlers
         {
             _mockRepo = new Mock<IUserRepository>();
             _mockEmailService = new Mock<IEmailService>();
-            _handler = new ForgotPasswordHandler(_mockRepo.Object, _mockEmailService.Object);
+            _mockConfiguration = new Mock<IConfiguration>();
+            _handler = new ForgotPasswordHandler(_mockRepo.Object, _mockEmailService.Object, _mockConfiguration.Object);
         }
 
         [Fact]
